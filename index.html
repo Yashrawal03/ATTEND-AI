@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduTrack LMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/face-api.js/dist/face-api.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+[data-theme="dark"]{
+  --bg:#060811;--s1:#0D1117;--s2:#161B26;--s3:#1E2535;--s4:#252D40;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.12);
+  --tx:#E8EAF2;--mt:#7A7F9A;--dm:#3A4060;
+  --shadow:0 4px 24px rgba(0,0,0,.45);
+}
+[data-theme="light"]{
+  --bg:#F0F3FA;--s1:#FFFFFF;--s2:#F5F7FD;--s3:#ECEEF8;--s4:#E2E5F5;
+  --b1:rgba(0,0,0,.07);--b2:rgba(0,0,0,.13);
+  --tx:#1A1D2E;--mt:#6B7090;--dm:#9BA0BA;
+  --shadow:0 4px 24px rgba(0,0,0,.08);
+}
+:root{
+  --ac:#4F8EF7;--ac2:#3A7AE8;
+  --gn:#1DD9A0;--rd:#F05470;--am:#F5A623;--pu:#9B72F5;
+  --fn:'Outfit',sans-serif;--mo:'JetBrains Mono',monospace;
+  --r:12px;--r2:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--tx);font-family:var(--fn);font-size:14px;line-height:1.6;overflow-x:hidden;transition:background .3s,color .2s}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--s4);border-radius:99px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.75)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes scanLine{0%{transform:translateY(0)}100%{transform:translateY(100%)}}
+@keyframes blinkWarn{0%,100%{border-color:rgba(240,84,112,.35)}50%{border-color:var(--rd)}}
+@keyframes popIn{0%{transform:scale(0.8);opacity:0}100%{transform:scale(1);opacity:1}}
+
+.screen{display:none}
+.screen.active{display:flex;flex-direction:column;min-height:100vh}
+
+/* ── LOGIN ── */
+#scr-login{align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 25% 20%,rgba(79,142,247,.09) 0%,transparent 55%),
+             radial-gradient(ellipse at 80% 85%,rgba(155,114,245,.07) 0%,transparent 50%),var(--bg)}
+.lw{width:430px;max-width:95vw;animation:fadeUp .5s cubic-bezier(.23,1,.32,1)}
+.ll{text-align:center;margin-bottom:32px}
+.ll-icon{width:66px;height:66px;border-radius:20px;background:linear-gradient(135deg,var(--ac),var(--pu));
+  display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 14px;
+  box-shadow:0 12px 36px rgba(79,142,247,.38)}
+.ll-title{font-size:27px;font-weight:800;letter-spacing:-.5px}
+.ll-title span{color:var(--ac)}
+.ll-sub{font-size:13px;color:var(--mt);margin-top:3px}
+.ltabs{display:flex;background:var(--s2);border-radius:var(--r);padding:4px;margin-bottom:20px;border:1px solid var(--b1)}
+.ltab{flex:1;padding:9px;text-align:center;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--mt);transition:all .2s;border:none;background:transparent;font-family:var(--fn)}
+.ltab.active{background:var(--s4);color:var(--tx);box-shadow:var(--shadow)}
+.lcard{background:var(--s1);border:1px solid var(--b2);border-radius:var(--r2);padding:28px}
+.fg{margin-bottom:14px}
+.fl{font-size:11.5px;color:var(--mt);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;display:block}
+.fi{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);
+  padding:11px 14px;color:var(--tx);font-family:var(--fn);font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s}
+.fi:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(79,142,247,.15)}
+.fi::placeholder{color:var(--dm)}
+.lerr{background:rgba(240,84,112,.1);border:1px solid rgba(240,84,112,.25);border-radius:8px;
+  padding:10px 14px;font-size:13px;color:var(--rd);margin-bottom:12px;display:none}
+.lerr.show{display:block}
+
+/* ── BUTTONS ── */
+.btn{padding:10px 20px;border-radius:var(--r);font-family:var(--fn);font-size:13.5px;font-weight:600;
+  cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;gap:7px;transition:all .18s;white-space:nowrap}
+.btn-p{background:var(--ac);color:#fff;box-shadow:0 4px 14px rgba(79,142,247,.35)}.btn-p:hover{background:var(--ac2);transform:translateY(-1px)}
+.btn-g{background:var(--s2);color:var(--tx);border-color:var(--b2)}.btn-g:hover{background:var(--s3)}
+.btn-gn{background:rgba(29,217,160,.15);color:var(--gn);border-color:rgba(29,217,160,.3)}.btn-gn:hover{background:rgba(29,217,160,.22)}
+.btn-rd{background:rgba(240,84,112,.15);color:var(--rd);border-color:rgba(240,84,112,.3)}.btn-rd:hover{background:rgba(240,84,112,.22)}
+.btn-am{background:rgba(245,166,35,.15);color:var(--am);border-color:rgba(245,166,35,.3)}.btn-am:hover{background:rgba(245,166,35,.22)}
+.btn-pu{background:rgba(155,114,245,.15);color:var(--pu);border-color:rgba(155,114,245,.3)}.btn-pu:hover{background:rgba(155,114,245,.22)}
+.btn-full{width:100%;justify-content:center;padding:12px}
+.btn-sm{padding:5px 13px;font-size:12px}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+
+/* ── LAYOUT ── */
+.al{display:flex;flex:1}
+.sb{width:228px;min-height:100vh;background:var(--s1);border-right:1px solid var(--b1);
+  display:flex;flex-direction:column;padding:20px 0;position:fixed;top:0;left:0;bottom:0;z-index:50;
+  box-shadow:var(--shadow);transition:transform .3s,background .3s}
+.sb-logo{padding:0 18px 20px;border-bottom:1px solid var(--b1);margin-bottom:10px}
+.sb-lr{display:flex;align-items:center;gap:10px}
+.sb-li{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--ac),var(--pu));
+  display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.sb-lt{font-size:17px;font-weight:800;letter-spacing:-.3px}.sb-lt span{color:var(--ac)}
+.sb-nav{flex:1;padding:0 10px;overflow-y:auto}
+.nav-sec{font-size:10px;color:var(--dm);text-transform:uppercase;letter-spacing:.09em;padding:12px 8px 4px}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r);cursor:pointer;
+  color:var(--mt);font-size:13.5px;font-weight:500;transition:all .15s;margin-bottom:2px;border:1px solid transparent}
+.ni:hover{background:var(--s2);color:var(--tx)}
+.ni.active{background:rgba(79,142,247,.12);color:var(--ac);border-color:rgba(79,142,247,.2)}
+.ni-ic{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.ni-badge{margin-left:auto;background:var(--rd);color:#fff;font-size:10px;font-weight:700;
+  padding:1px 6px;border-radius:20px}
+.sb-user{padding:14px 18px 0;border-top:1px solid var(--b1)}
+.ur{display:flex;align-items:center;gap:10px}
+.uav{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.un{font-size:13px;font-weight:600}.uro{font-size:11px;color:var(--mt)}
+.sb-actions{padding:10px 18px 0;display:flex;flex-direction:column;gap:6px}
+.sa-btn{width:100%;padding:8px 12px;border-radius:8px;background:transparent;border:1px solid var(--b1);
+  color:var(--mt);cursor:pointer;font-family:var(--fn);font-size:12px;transition:all .2s;
+  display:flex;align-items:center;gap:7px;font-weight:500}
+.sa-btn:hover{border-color:var(--b2);color:var(--tx);background:var(--s2)}
+.sa-btn.logout:hover{border-color:var(--rd);color:var(--rd)}
+.ham-btn{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--s1);
+  border:1px solid var(--b2);border-radius:10px;width:40px;height:40px;
+  align-items:center;justify-content:center;font-size:18px;cursor:pointer;box-shadow:var(--shadow)}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:49}
+.mn{margin-left:228px;flex:1;padding:26px 28px;min-height:100vh;transition:margin .3s}
+.pg{display:none}
+.pg.active{display:block;animation:fadeUp .3s cubic-bezier(.23,1,.32,1)}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.pt{font-size:23px;font-weight:800;letter-spacing:-.4px}
+.ps{color:var(--mt);font-size:13px;margin-top:2px}
+
+/* ── STATS GRID ── */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.sc{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:18px;
+  position:relative;overflow:hidden;transition:border-color .2s,transform .2s,box-shadow .2s}
+.sc:hover{border-color:var(--b2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.sib{position:absolute;top:-8px;right:-8px;font-size:54px;opacity:.05;pointer-events:none}
+.sl{font-size:11px;color:var(--mt);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.sv{font-size:30px;font-weight:800;line-height:1;margin-bottom:3px}
+.sn{font-size:12px;color:var(--mt)}
+.cg{color:var(--gn)}.cr{color:var(--rd)}.ca{color:var(--am)}.cb{color:var(--ac)}.cp{color:var(--pu)}
+
+/* ── CARDS ── */
+.cd{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:20px;margin-bottom:16px;transition:background .3s,border-color .2s}
+.ct{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;color:var(--mt);text-transform:uppercase;letter-spacing:.07em;padding:10px 14px;text-align:left;border-bottom:1px solid var(--b1)}
+td{padding:11px 14px;font-size:13.5px;border-bottom:1px solid var(--b1);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr{transition:background .15s}
+tbody tr:hover td{background:var(--s2)}
+.badge{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.bg{background:rgba(29,217,160,.13);color:var(--gn)}
+.br{background:rgba(240,84,112,.13);color:var(--rd)}
+.ba{background:rgba(245,166,35,.13);color:var(--am)}
+.bb{background:rgba(79,142,247,.13);color:var(--ac)}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fs{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);
+  padding:10px 14px;color:var(--tx);font-family:var(--fn);font-size:14px;outline:none;transition:border-color .2s}
+.fs:focus{border-color:var(--ac)}
+.pb{height:7px;background:var(--s3);border-radius:99px;overflow:hidden}
+.pf{height:100%;border-radius:99px;transition:width .7s cubic-bezier(.23,1,.32,1)}
+
+/* ── CAMERA ── */
+.cam-layout{display:grid;grid-template-columns:1.55fr 1fr;gap:18px;align-items:start}
+.cam-box{position:relative;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r2);overflow:hidden;aspect-ratio:4/3}
+#cam-video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:none;transform:scaleX(-1)}
+#cam-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;display:block;z-index:5}
+.liveness-scan{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gn),transparent);z-index:8;display:none;animation:scanLine 2s linear infinite}
+.liveness-scan.active{display:block}
+.cam-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--mt);z-index:2}
+.cam-ph-icon{font-size:52px;opacity:.5}
+.cam-sb{position:absolute;bottom:0;left:0;right:0;z-index:10;background:rgba(6,8,17,.9);backdrop-filter:blur(8px);
+  padding:9px 14px;display:flex;align-items:center;gap:8px;font-size:12.5px}
+.sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sdot-gn{background:var(--gn);animation:pulse 2s infinite}
+.sdot-rd{background:var(--rd)}.sdot-am{background:var(--am);animation:pulse 1s infinite}.sdot-off{background:var(--dm)}
+.fps-badge{margin-left:auto;background:rgba(79,142,247,.15);color:var(--ac);border:1px solid rgba(79,142,247,.25);border-radius:20px;padding:2px 9px;font-size:11px;font-weight:600;font-family:var(--mo)}
+.cam-loading{position:absolute;inset:0;z-index:20;background:rgba(6,8,17,.88);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;font-size:13px;color:#fff}
+.cam-loading.show{display:flex}
+.load-bar{width:200px;height:3px;background:rgba(255,255,255,.1);border-radius:99px;margin-top:4px;overflow:hidden}
+.load-fill{height:100%;background:var(--ac);border-radius:99px;transition:width .5s ease;width:0%}
+
+/* Auto-mark flash */
+.am-flash{position:absolute;inset:0;z-index:15;background:rgba(29,217,160,.12);
+  display:none;align-items:center;justify-content:center;border-radius:var(--r2)}
+.am-flash.show{display:flex;animation:popIn .4s cubic-bezier(.23,1,.32,1)}
+.am-flash-txt{font-size:16px;font-weight:800;color:#fff;text-align:center;
+  background:rgba(29,217,160,.92);padding:12px 22px;border-radius:var(--r);max-width:85%}
+
+.live-bar{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:10px 14px;margin-top:8px;display:none}
+.live-bar.show{display:block}
+.det-panel{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.det-hdr{padding:11px 14px;border-bottom:1px solid var(--b1);font-size:11.5px;font-weight:600;color:var(--mt);text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:8px}
+.det-list{min-height:90px;max-height:240px;overflow-y:auto}
+.det-item{display:flex;align-items:center;gap:11px;padding:10px 14px;border-bottom:1px solid var(--b1);transition:background .15s;animation:slideIn .2s ease}
+.det-item:last-child{border-bottom:none}.det-item:hover{background:var(--s3)}
+.det-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.det-name{font-size:13px;font-weight:600}.det-sub2{font-size:11px;color:var(--mt)}.det-st{margin-left:auto;font-size:12px;font-weight:600}
+.det-empty{display:flex;align-items:center;justify-content:center;height:80px;color:var(--dm);font-size:13px}
+.session-summary{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:14px;display:none;margin-top:12px;animation:fadeUp .3s ease}
+.session-summary.show{display:block}
+.sum-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+.sum-item{background:var(--s3);border-radius:8px;padding:10px 12px;text-align:center}
+.sum-val{font-size:22px;font-weight:800}.sum-lbl{font-size:11px;color:var(--mt);margin-top:2px}
+.risk-banner{background:rgba(240,84,112,.1);border:1px solid rgba(240,84,112,.3);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:14px;animation:blinkWarn 2s infinite}
+.risk-banner.hidden{display:none}
+.success-banner{background:rgba(29,217,160,.1);border:1px solid rgba(29,217,160,.3);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:14px;animation:fadeUp .4s ease}
+.success-banner.hidden{display:none}
+.notif-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--b1);animation:slideIn .2s ease}
+.notif-item:last-child{border-bottom:none}
+.notif-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.notif-dot.unread{background:var(--ac)}.notif-dot.read{background:var(--dm)}
+.notif-txt{font-size:13px;line-height:1.55}.notif-time{font-size:11px;color:var(--mt);margin-top:3px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--b1)}
+.setting-row:last-child{border-bottom:none}
+.tgl-wrap{position:relative;width:42px;height:24px;flex-shrink:0}
+.tgl-wrap input{opacity:0;width:0;height:0;position:absolute}
+.tgl-sl{position:absolute;inset:0;background:var(--s4);border-radius:12px;cursor:pointer;transition:.3s}
+.tgl-sl:before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.tgl-wrap input:checked+.tgl-sl{background:var(--ac)}
+.tgl-wrap input:checked+.tgl-sl:before{transform:translateX(18px)}
+.ibox{background:rgba(79,142,247,.07);border:1px solid rgba(79,142,247,.18);border-radius:var(--r);padding:12px 16px;font-size:12.5px;color:var(--mt);line-height:1.75;margin-bottom:12px}
+.marked-box{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:14px;display:none;margin-top:12px;animation:fadeUp .3s ease}
+.marked-box.show{display:block}
+.ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(186px,1fr));gap:10px;margin-top:10px}
+.ac2{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:10px;transition:all .2s}
+.ac2.present{border-color:rgba(29,217,160,.4)}.ac2.absent{border-color:rgba(240,84,112,.2)}
+.a-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.a-nm{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.a-id{font-size:11px;color:var(--mt)}
+.big-pct{font-size:58px;font-weight:800;line-height:1;letter-spacing:-2px}
+.chart-wrap{position:relative;height:220px}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.modal-bg.open{display:flex;animation:fadeIn .2s ease}
+.modal{background:var(--s1);border:1px solid var(--b2);border-radius:var(--r2);padding:26px;width:480px;max-width:95vw;box-shadow:0 24px 64px rgba(0,0,0,.5);animation:fadeUp .3s ease}
+.modal-title{font-size:17px;font-weight:800;margin-bottom:18px;display:flex;align-items:center;gap:9px}
+.face-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.face-thumb{width:72px;height:72px;border-radius:8px;object-fit:cover;border:2px solid var(--gn)}
+#toast{position:fixed;bottom:22px;right:22px;background:var(--s1);border:1px solid var(--b2);
+  border-radius:var(--r);padding:11px 18px;font-size:13.5px;font-weight:500;
+  transform:translateY(70px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);z-index:999;
+  box-shadow:0 10px 32px rgba(0,0,0,.4);display:flex;align-items:center;gap:9px;min-width:240px;max-width:340px}
+#toast.show{transform:translateY(0);opacity:1}
+.spin{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+.pdf-loading{display:none;align-items:center;gap:8px;font-size:13px;color:var(--mt);margin-top:8px}
+.pdf-loading.show{display:flex}
+@media(max-width:768px){
+  .sg{grid-template-columns:repeat(2,1fr)}
+  .cam-layout{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .sb{transform:translateX(-100%);width:260px;box-shadow:4px 0 20px rgba(0,0,0,.5)}
+  .sb.open{transform:translateX(0)}
+  .sb-overlay.open{display:block}
+  .mn{margin-left:0!important;padding:60px 14px 24px}
+  .ham-btn{display:flex}
+  .fr{grid-template-columns:1fr}
+  .ph{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:480px){.sg{grid-template-columns:1fr 1fr}.lw{padding:0 10px}.mn{padding:60px 12px 20px}}
+</style>
+</head>
+<body>
+
+<button class="ham-btn" id="ham-btn" onclick="toggleSidebar()">☰</button>
+<div class="sb-overlay" id="sb-overlay" onclick="toggleSidebar()"></div>
+
+<!-- ═══ LOGIN ═══ -->
+<div class="screen active" id="scr-login">
+  <div class="lw">
+    <div class="ll">
+      <div class="ll-icon">🎓</div>
+      <div class="ll-title">ATTEND<span>AI</span> LMS</div>
+      <div class="ll-sub">Smart Attendance Management System</div>
+    </div>
+    <div class="ltabs">
+      <button class="ltab active" onclick="swTab('teacher')">👨‍🏫 Teacher</button>
+      <button class="ltab" onclick="swTab('student')">🎓 Student</button>
+    </div>
+    <div class="lcard">
+      <div class="lerr" id="lerr"></div>
+      <div class="fg">
+        <label class="fl" id="lid-lbl">Teacher ID</label>
+        <input class="fi" id="lid" placeholder="e.g. teacher1" autocomplete="username">
+      </div>
+      <div class="fg">
+        <label class="fl">Password</label>
+        <input class="fi" id="lpw" type="password" placeholder="Enter password"
+               onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn btn-p btn-full" onclick="doLogin()"><span id="lbtn">Sign In →</span></button>
+      <div style="margin-top:14px;padding:11px 14px;background:var(--s2);border-radius:9px;font-size:12px;color:var(--mt);line-height:2" id="demo-hint">
+        Teacher: <code style="color:var(--ac)">teacher1</code> / <code style="color:var(--ac)">teacher123</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TEACHER APP ═══ -->
+<div class="screen" id="scr-teacher">
+  <div class="al">
+    <aside class="sb" id="t-sb">
+      <div class="sb-logo"><div class="sb-lr"><div class="sb-li">🎓</div><div class="sb-lt">ATTEND<span>AI</span></div></div></div>
+      <nav class="sb-nav">
+        <div class="nav-sec">Main</div>
+        <div class="ni active" onclick="tPg('dashboard')" id="tn-dashboard"><span class="ni-ic">📊</span>Dashboard</div>
+        <div class="ni" onclick="tPg('camera')" id="tn-camera"><span class="ni-ic">📷</span>Live Camera</div>
+        <div class="ni" onclick="tPg('attendance')" id="tn-attendance"><span class="ni-ic">✅</span>Attendance</div>
+        <div class="nav-sec">Analytics</div>
+        <div class="ni" onclick="tPg('reports')" id="tn-reports"><span class="ni-ic">📈</span>Reports</div>
+        <div class="ni" onclick="tPg('defaulters')" id="tn-defaulters"><span class="ni-ic">⚠️</span>Defaulters</div>
+        <div class="nav-sec">Manage</div>
+        <div class="ni" onclick="tPg('students')" id="tn-students"><span class="ni-ic">👥</span>Students</div>
+        <div class="ni" onclick="tPg('notifications')" id="tn-notifications"><span class="ni-ic">🔔</span>Notifications<span class="ni-badge" id="t-badge" style="display:none">0</span></div>
+        <div class="ni" onclick="tPg('settings')" id="tn-settings"><span class="ni-ic">⚙️</span>Settings</div>
+      </nav>
+      <div class="sb-user"><div class="ur">
+        <div class="uav" id="t-av" style="background:rgba(79,142,247,.2);color:var(--ac)">PK</div>
+        <div><div class="un" id="t-nm">Teacher</div><div class="uro">Class Teacher</div></div>
+      </div></div>
+      <div class="sb-actions">
+        <button class="sa-btn" onclick="toggleTheme()" id="t-theme-btn">🌙 Switch to Light</button>
+        <button class="sa-btn logout" onclick="doLogout()">↩ Sign Out</button>
+      </div>
+    </aside>
+    <main class="mn" id="t-main">
+
+      <!-- DASHBOARD -->
+      <div class="pg active" id="tp-dashboard">
+        <div class="ph">
+          <div><div class="pt">Dashboard</div><div class="ps" id="t-today"></div></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input type="date" id="dd" class="fs" style="width:150px;padding:8px 12px" onchange="loadDash()">
+            <button class="btn btn-p" onclick="tPg('camera')">📷 Camera</button>
+          </div>
+        </div>
+        <div class="risk-banner hidden" id="risk-banner">
+          <span style="font-size:18px">🚨</span>
+          <div><strong id="risk-count">0</strong> students below 75% —
+            <a href="#" onclick="tPg('defaulters');return false" style="color:var(--rd);text-decoration:underline">View Defaulters</a>
+          </div>
+        </div>
+        <div class="sg">
+          <div class="sc"><div class="sib">✅</div><div class="sl">Present Today</div><div class="sv cg" id="dp">—</div><div class="sn">students</div></div>
+          <div class="sc"><div class="sib">❌</div><div class="sl">Absent Today</div><div class="sv cr" id="da">—</div><div class="sn">students</div></div>
+          <div class="sc"><div class="sib">👥</div><div class="sl">Total Students</div><div class="sv cb" id="dt">—</div><div class="sn">enrolled</div></div>
+          <div class="sc"><div class="sib">📊</div><div class="sl">Today's Rate</div><div class="sv cp" id="dr">—%</div><div class="sn">attendance</div></div>
+        </div>
+        <div class="cd">
+          <div class="ct">Attendance Overview <button class="btn btn-g btn-sm" onclick="loadDash()">↻ Refresh</button></div>
+          <div class="ag" id="dash-grid"></div>
+        </div>
+      </div>
+
+      <!-- CAMERA -->
+      <div class="pg" id="tp-camera">
+        <div class="ph"><div><div class="pt">Live Camera</div><div class="ps">⚡ Auto-marks attendance as soon as face + liveness verified</div></div></div>
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px;padding:12px 16px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r)">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:13px;color:var(--mt);font-weight:500">Subject:</span>
+            <input class="fs" id="cam-subject" placeholder="e.g. Data Structures" style="width:180px;padding:7px 12px" value="General">
+          </div>
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--tx);cursor:pointer">
+            <input type="checkbox" id="liveness-toggle" checked onchange="livenessEnabled=this.checked;updateLivenessScan()"> 🙂 Liveness
+          </label>
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--tx);cursor:pointer">
+            <input type="checkbox" id="emotion-toggle" checked onchange="emotionEnabled=this.checked"> 😊 Emotions
+          </label>
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--tx);cursor:pointer">
+            <input type="checkbox" id="automark-toggle" checked onchange="autoMarkEnabled=this.checked">
+            <span style="color:var(--gn);font-weight:700">⚡ Auto-Mark ON</span>
+          </label>
+        </div>
+        <div class="cam-layout">
+          <div>
+            <div class="cam-box">
+              <video id="cam-video" autoplay playsinline muted></video>
+              <canvas id="cam-canvas"></canvas>
+              <div class="liveness-scan" id="liveness-scan"></div>
+              <div class="cam-ph" id="cam-ph">
+                <div class="cam-ph-icon">📷</div>
+                <div style="font-size:14px;font-weight:600">Camera not started</div>
+                <div style="font-size:12px;color:var(--dm)">Click Start Camera below</div>
+              </div>
+              <div class="cam-loading" id="cam-loading">
+                <div class="spin" style="width:28px;height:28px;border-width:3px"></div>
+                <div id="cam-loading-txt">Loading face models…</div>
+                <div class="load-bar"><div class="load-fill" id="load-fill"></div></div>
+              </div>
+              <!-- AUTO-MARK FLASH overlay -->
+              <div class="am-flash" id="am-flash">
+                <div class="am-flash-txt" id="am-flash-txt">✅ Marked Present!</div>
+              </div>
+              <div class="cam-sb">
+                <div class="sdot sdot-off" id="sdot"></div>
+                <span id="s-txt">Camera off</span>
+                <span class="fps-badge" id="fps-badge" style="display:none">0 fps</span>
+              </div>
+            </div>
+            <div class="live-bar" id="live-bar">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                <span style="font-weight:600;font-size:13px">🙂 Head Movement</span>
+                <span id="live-val" style="font-family:var(--mo);color:var(--ac);font-size:12px">0 px</span>
+              </div>
+              <div class="pb"><div class="pf" id="live-fill" style="width:0%;background:var(--rd)"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mt);margin-top:5px">
+                <span>Still</span><span id="live-status" style="font-weight:600">Move slightly</span><span>✅ Live</span>
+              </div>
+            </div>
+            <div class="session-summary" id="session-summary">
+              <div style="font-size:12px;font-weight:600;color:var(--mt);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">📋 Session Summary</div>
+              <div id="session-summary-txt" style="font-size:13.5px;font-weight:500;margin-bottom:10px"></div>
+              <div class="sum-grid" id="sum-grid"></div>
+            </div>
+            <div class="marked-box" id="marked-box">
+              <div style="font-size:11px;color:var(--mt);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-bottom:10px">Attendance Saved</div>
+              <div id="marked-body"></div>
+            </div>
+          </div>
+          <div>
+            <div class="cd" style="padding:16px;margin-bottom:12px">
+              <div style="font-size:11px;color:var(--mt);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-bottom:12px">Controls</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <button class="btn btn-p btn-full" id="btn-start" onclick="startCamera()">▶ Start Camera</button>
+                <button class="btn btn-g btn-full" id="btn-stop" onclick="stopCamera()" style="display:none">⏹ Stop Camera</button>
+                <button class="btn btn-gn btn-full" id="btn-mark" onclick="markDetected()" disabled><span id="btn-mark-inner">📸 Save Manually</span></button>
+                <button class="btn btn-rd btn-full" onclick="resetLiveness()">🔄 Reset Liveness</button>
+                <button class="btn btn-am btn-full" onclick="openFaceRegModal()">📷 Register Face</button>
+              </div>
+            </div>
+            <div class="det-panel">
+              <div class="det-hdr"><span>👁</span>Live Detections<span id="det-cnt" style="margin-left:auto;color:var(--tx);font-weight:600">0</span></div>
+              <div class="det-list" id="det-list"><div class="det-empty">Start camera to track</div></div>
+            </div>
+            <div class="cd" style="padding:14px;margin-bottom:12px">
+              <div style="font-size:11px;color:var(--mt);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-bottom:8px">😊 Engagement</div>
+              <div id="emotion-summary" style="font-size:13px;color:var(--mt)">Start camera…</div>
+            </div>
+            <div class="ibox">
+              ⚡ <strong>Auto-Mark</strong> = saved instantly when face verified + head moved<br>
+              🟢 Green = recognized + verified<br>
+              🟡 Amber = recognized — move head<br>
+              🔴 Red = unknown<br>
+              🏅 Gold = already marked this session
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATTENDANCE -->
+      <div class="pg" id="tp-attendance">
+        <div class="ph"><div><div class="pt">Attendance Records</div></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input type="date" id="att-d" class="fs" style="width:150px;padding:8px 12px" onchange="loadAtt()">
+            <button class="btn btn-p" onclick="loadAtt()">Load</button>
+          </div>
+        </div>
+        <div class="cd" style="padding:0">
+          <div class="tw"><table>
+            <thead><tr><th>Student</th><th>Roll No</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="att-tbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="pg" id="tp-reports">
+        <div class="ph"><div><div class="pt">Reports & Analytics</div></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <select class="fs" id="rep-month" style="width:130px;padding:8px 12px"></select>
+            <select class="fs" id="rep-year" style="width:95px;padding:8px 12px"></select>
+            <button class="btn btn-p" onclick="loadReports()">Load</button>
+            <button class="btn btn-gn" onclick="exportCSV()">⬇ CSV</button>
+            <button class="btn btn-pu" onclick="generatePDF()">📄 PDF</button>
+          </div>
+        </div>
+        <div class="pdf-loading" id="pdf-loading"><div class="spin"></div> Generating PDF…</div>
+        <div class="g2" style="gap:16px;margin-bottom:16px">
+          <div class="cd"><div class="ct">Monthly Attendance</div><div class="chart-wrap"><canvas id="monthlyChart"></canvas></div></div>
+          <div class="cd"><div class="ct">Present vs Absent</div><div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>
+        </div>
+        <div class="cd"><div class="ct">Monthly Summary</div>
+          <div class="tw"><table>
+            <thead><tr><th>Student</th><th>Roll No</th><th>Present</th><th>Absent</th><th>Total</th><th>%</th><th>Status</th></tr></thead>
+            <tbody id="monthly-tbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- DEFAULTERS -->
+      <div class="pg" id="tp-defaulters">
+        <div class="ph"><div><div class="pt">At-Risk Students</div></div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="font-size:13px;color:var(--mt)">Threshold:</span>
+            <input type="number" class="fs" id="def-threshold" value="75" style="width:75px;padding:8px 12px" min="50" max="95">
+            <button class="btn btn-p" onclick="loadDefaulters()">Load</button>
+            <button class="btn btn-rd" onclick="notifyAll()">🔔 Notify All</button>
+          </div>
+        </div>
+        <div class="sg" id="def-stats" style="margin-bottom:18px"></div>
+        <div class="cd"><div class="ct">Defaulter List</div><div id="def-list"></div></div>
+      </div>
+
+      <!-- STUDENTS -->
+      <div class="pg" id="tp-students">
+        <div class="ph"><div class="pt">Manage Students</div>
+          <button class="btn btn-pu" onclick="syncStudents()">🔄 Sync from face_data</button>
+        </div>
+        <div class="g2" style="gap:16px">
+          <div class="cd">
+            <div class="ct">➕ Add Student</div>
+            <div class="fr" style="margin-bottom:12px">
+              <div class="fg" style="margin-bottom:0"><label class="fl">Roll No</label><input class="fi" id="ns-id" placeholder="e.g. 23BCON1379"></div>
+              <div class="fg" style="margin-bottom:0"><label class="fl">Full Name</label><input class="fi" id="ns-nm" placeholder="e.g. Priya Sharma"></div>
+            </div>
+            <div class="fg"><label class="fl">Password</label><input class="fi" id="ns-pw" placeholder="Default: student123"></div>
+            <div class="ibox" style="font-size:12px;margin-bottom:12px">
+              <strong>First time setup:</strong> Click <strong>🔄 Sync from face_data</strong> to auto-import all students whose photos are in the face_data folder.
+            </div>
+            <button class="btn btn-p btn-full" onclick="addStudent()">Add Student</button>
+            <div id="add-res" style="margin-top:10px;font-size:13px;color:var(--gn);display:none"></div>
+          </div>
+          <div class="cd" style="padding:0">
+            <div style="padding:14px 18px 10px;border-bottom:1px solid var(--b1);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:space-between">
+              All Students<span id="stu-count" style="font-size:12px;color:var(--mt)"></span>
+            </div>
+            <div class="tw"><table>
+              <thead><tr><th>Roll No</th><th>Name</th><th></th></tr></thead>
+              <tbody id="stu-tbody"></tbody>
+            </table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div class="pg" id="tp-notifications">
+        <div class="ph"><div class="pt">Notifications</div><button class="btn btn-g btn-sm" onclick="markRead('t')">Mark All Read</button></div>
+        <div class="cd"><div id="notif-list-t" style="max-height:70vh;overflow-y:auto"></div></div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="pg" id="tp-settings">
+        <div class="ph"><div class="pt">Settings</div></div>
+        <div class="g2" style="gap:16px">
+          <div class="cd">
+            <div class="ct">🔑 Change Password</div>
+            <div class="fg"><label class="fl">Current Password</label><input class="fi" id="t-old-pw" type="password" placeholder="Current password"></div>
+            <div class="fg"><label class="fl">New Password</label><input class="fi" id="t-new-pw" type="password" placeholder="New password"></div>
+            <div class="fg"><label class="fl">Confirm</label><input class="fi" id="t-conf-pw" type="password" placeholder="Confirm new password"></div>
+            <button class="btn btn-p btn-full" onclick="changePw('t')">Update Password</button>
+            <div id="pw-msg-t" style="margin-top:10px;font-size:13px;display:none"></div>
+          </div>
+          <div class="cd">
+            <div class="ct">🎨 Preferences</div>
+            <div class="setting-row"><div><div style="font-size:13.5px;font-weight:500">Dark Mode</div><div style="font-size:12px;color:var(--mt)">Toggle light / dark theme</div></div><label class="tgl-wrap"><input type="checkbox" id="t-dark-tgl" onchange="toggleTheme()" checked><span class="tgl-sl"></span></label></div>
+            <div class="setting-row"><div><div style="font-size:13.5px;font-weight:500">Auto-Mark Attendance</div><div style="font-size:12px;color:var(--mt)">Instantly save when face verified</div></div><label class="tgl-wrap"><input type="checkbox" id="automark-setting" checked onchange="autoMarkEnabled=this.checked;$('automark-toggle').checked=this.checked"><span class="tgl-sl"></span></label></div>
+            <div class="setting-row"><div><div style="font-size:13.5px;font-weight:500">Liveness Detection</div><div style="font-size:12px;color:var(--mt)">Require head movement</div></div><label class="tgl-wrap"><input type="checkbox" id="liveness-setting" checked onchange="livenessEnabled=this.checked;$('liveness-toggle').checked=this.checked;updateLivenessScan()"><span class="tgl-sl"></span></label></div>
+            <div class="setting-row"><div><div style="font-size:13.5px;font-weight:500">Show Liveness Monitor</div><div style="font-size:12px;color:var(--mt)">Show movement progress bar</div></div><label class="tgl-wrap"><input type="checkbox" id="live-debug-setting" onchange="$('live-bar').classList.toggle('show',this.checked)"><span class="tgl-sl"></span></label></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ═══ STUDENT APP ═══ -->
+<div class="screen" id="scr-student">
+  <div class="al">
+    <aside class="sb" id="s-sb">
+      <div class="sb-logo"><div class="sb-lr"><div class="sb-li">🎓</div><div class="sb-lt">Edu<span>Track</span></div></div></div>
+      <nav class="sb-nav">
+        <div class="nav-sec">My Portal</div>
+        <div class="ni active" onclick="sPg('overview')" id="sn-overview"><span class="ni-ic">📊</span>My Overview</div>
+        <div class="ni" onclick="sPg('records')" id="sn-records"><span class="ni-ic">📋</span>Attendance</div>
+        <div class="ni" onclick="sPg('notifications')" id="sn-notifications"><span class="ni-ic">🔔</span>Notifications<span class="ni-badge" id="s-badge" style="display:none">0</span></div>
+        <div class="ni" onclick="sPg('settings')" id="sn-settings"><span class="ni-ic">⚙️</span>Settings</div>
+      </nav>
+      <div class="sb-user"><div class="ur">
+        <div class="uav" id="s-av" style="background:rgba(29,217,160,.2);color:var(--gn)">ST</div>
+        <div><div class="un" id="s-nm">Student</div><div class="uro" id="s-id">Roll No</div></div>
+      </div></div>
+      <div class="sb-actions">
+        <button class="sa-btn" onclick="toggleTheme()" id="s-theme-btn">🌙 Switch to Light</button>
+        <button class="sa-btn logout" onclick="doLogout()">↩ Sign Out</button>
+      </div>
+    </aside>
+    <main class="mn" id="s-main">
+
+      <!-- STUDENT OVERVIEW -->
+      <div class="pg active" id="sp-overview">
+        <div class="ph">
+          <div><div class="pt">My Attendance</div><div class="ps" id="s-today"></div></div>
+          <button class="btn btn-g btn-sm" onclick="loadStudentData()">↻ Refresh</button>
+        </div>
+        <!-- Today present banner -->
+        <div class="success-banner hidden" id="s-present-banner">
+          <span style="font-size:20px">✅</span>
+          <div><strong>You were marked Present today!</strong><div id="s-present-detail" style="font-size:12px;color:var(--mt);margin-top:2px"></div></div>
+        </div>
+        <!-- At risk banner -->
+        <div class="risk-banner hidden" id="s-risk-banner">
+          <span style="font-size:18px">⚠️</span>
+          <div id="s-risk-msg">Your attendance is below 75%!</div>
+        </div>
+        <div class="sg">
+          <div class="sc"><div class="sib">📊</div><div class="sl">Overall %</div><div class="sv cg" id="s-pct">—</div><div class="sn">attendance</div></div>
+          <div class="sc"><div class="sib">✅</div><div class="sl">Present</div><div class="sv cb" id="s-pr">—</div><div class="sn">days</div></div>
+          <div class="sc"><div class="sib">❌</div><div class="sl">Absent</div><div class="sv cr" id="s-ab">—</div><div class="sn">days</div></div>
+          <div class="sc"><div class="sib">📅</div><div class="sl">Total</div><div class="sv cp" id="s-tot">—</div><div class="sn">classes</div></div>
+        </div>
+        <div class="g2" style="gap:16px">
+          <div class="cd">
+            <div class="ct">Attendance Health</div>
+            <div style="text-align:center;padding:16px 0">
+              <div class="big-pct cg" id="s-big">—</div>
+              <div style="font-size:12px;color:var(--mt);margin-top:4px">Overall rate</div>
+              <div class="pb" style="margin:14px 0 6px"><div class="pf" id="s-prog" style="width:0%"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mt)">
+                <span>0%</span><span style="color:var(--am)">75% required</span><span>100%</span>
+              </div>
+            </div>
+            <div id="s-alert-box" style="border-radius:8px;padding:11px 14px;font-size:13px;text-align:center;display:none"></div>
+          </div>
+          <div class="cd"><div class="ct">Recent Activity</div><div id="s-recent" style="max-height:260px;overflow-y:auto"></div></div>
+        </div>
+      </div>
+
+      <!-- STUDENT RECORDS -->
+      <div class="pg" id="sp-records">
+        <div class="ph"><div class="pt">Full Attendance Record</div><button class="btn btn-g btn-sm" onclick="loadSRec()">↻ Refresh</button></div>
+        <div class="cd" style="padding:0"><div class="tw"><table>
+          <thead><tr><th>Date</th><th>Day</th><th>Subject</th><th>Status</th></tr></thead>
+          <tbody id="s-tbody"></tbody>
+        </table></div></div>
+      </div>
+
+      <!-- STUDENT NOTIFICATIONS -->
+      <div class="pg" id="sp-notifications">
+        <div class="ph"><div class="pt">Notifications</div><button class="btn btn-g btn-sm" onclick="markRead('s')">Mark All Read</button></div>
+        <div class="cd"><div id="notif-list-s" style="max-height:70vh;overflow-y:auto"></div></div>
+      </div>
+
+      <!-- STUDENT SETTINGS -->
+      <div class="pg" id="sp-settings">
+        <div class="ph"><div class="pt">Settings</div></div>
+        <div class="g2" style="gap:16px">
+          <div class="cd">
+            <div class="ct">🔑 Change Password</div>
+            <div class="fg"><label class="fl">Current Password</label><input class="fi" id="s-old-pw" type="password" placeholder="Current password"></div>
+            <div class="fg"><label class="fl">New Password</label><input class="fi" id="s-new-pw" type="password" placeholder="New password"></div>
+            <div class="fg"><label class="fl">Confirm</label><input class="fi" id="s-conf-pw" type="password" placeholder="Confirm new password"></div>
+            <button class="btn btn-p btn-full" onclick="changePw('s')">Update Password</button>
+            <div id="pw-msg-s" style="margin-top:10px;font-size:13px;display:none"></div>
+          </div>
+          <div class="cd"><div class="ct">🎨 Appearance</div>
+            <div class="setting-row"><div><div style="font-size:13.5px;font-weight:500">Dark Mode</div><div style="font-size:12px;color:var(--mt)">Toggle theme</div></div><label class="tgl-wrap"><input type="checkbox" id="s-dark-tgl" onchange="toggleTheme()" checked><span class="tgl-sl"></span></label></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- FACE REGISTER MODAL -->
+<div class="modal-bg" id="face-reg-modal">
+  <div class="modal">
+    <div class="modal-title">📷 Register Student Face</div>
+    <div class="fg"><label class="fl">Select Student</label><select class="fs" id="reg-student-sel"></select></div>
+    <div style="position:relative;border-radius:var(--r);overflow:hidden;aspect-ratio:4/3;margin-bottom:12px;background:var(--s2)">
+      <video id="face-reg-video" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;transform:scaleX(-1)"></video>
+    </div>
+    <canvas id="face-reg-canvas" style="display:none"></canvas>
+    <div class="face-preview" id="face-preview"></div>
+    <div style="font-size:12px;color:var(--mt);margin:10px 0;text-align:center">Capture 3–5 photos from different angles</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-gn" onclick="captureRegFace()" style="flex:1">📸 Capture</button>
+      <button class="btn btn-p" onclick="saveFaces()" style="flex:1" id="save-faces-btn" disabled>💾 Save All</button>
+      <button class="btn btn-g" onclick="closeRegModal()">✕</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let currentUser=null, camStream=null, animFrame=null;
+let faceModelsLoaded=false, knownDescriptors=[];
+let lastDetections=[], sessionMarked=new Set();
+let fpsCounter=0, fpsTime=Date.now(), frameCount=0;
+let currentTheme='dark';
+let livenessEnabled=true, emotionEnabled=true, autoMarkEnabled=true;
+let regCamStream=null, capturedFaces=[];
+let monthlyChartInst=null, pieChartInst=null;
+let autoMarkInProgress=false;  // prevent concurrent auto-marks
+
+// Liveness
+const HEAD_MOVE_THRESHOLD=10, HEAD_HISTORY_LEN=15;
+let nosePosHistory={}, livenessConfirmed={};
+
+const EMOTION_ICONS={'happy':'😊','sad':'😢','angry':'😠','fearful':'😨','disgusted':'🤢','surprised':'😲','neutral':'😐'};
+const THRESHOLD=0.45;
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+const $=id=>document.getElementById(id);
+
+function toast(msg,t='gn'){
+  const el=$('toast');
+  const ic={gn:'✅',rd:'❌',am:'⚠️',bl:'ℹ️'};
+  const cl={gn:'var(--gn)',rd:'var(--rd)',am:'var(--am)',bl:'var(--ac)'};
+  el.innerHTML=`<span style="color:${cl[t]};font-size:16px">${ic[t]}</span>${msg}`;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),3800);
+}
+
+const today=()=>new Date().toISOString().split('T')[0];
+const fmtD=d=>new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+const dayN=d=>new Date(d+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short'});
+const inits=n=>n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+
+const AVBG=['rgba(79,142,247,.2)','rgba(29,217,160,.18)','rgba(155,114,245,.18)','rgba(245,166,35,.18)','rgba(240,84,112,.18)'];
+const AVFG=['var(--ac)','var(--gn)','var(--pu)','var(--am)','var(--rd)'];
+function ac(s){let h=0;for(let c of s)h+=c.charCodeAt(0);return{bg:AVBG[h%AVBG.length],fg:AVFG[h%AVFG.length]}}
+function spin(){return'<div class="spin" style="border-top-color:currentColor"></div>'}
+
+// ══════════════════════════════════════════
+// THEME
+// ══════════════════════════════════════════
+function applyTheme(t){
+  currentTheme=t;
+  document.documentElement.setAttribute('data-theme',t);
+  const d=t==='dark';
+  [$('t-dark-tgl'),$('s-dark-tgl')].forEach(el=>{if(el)el.checked=d});
+  const lbl=`${d?'🌙':'☀️'} Switch to ${d?'Light':'Dark'}`;
+  [$('t-theme-btn'),$('s-theme-btn')].forEach(el=>{if(el)el.textContent=lbl});
+}
+function toggleTheme(){
+  const n=currentTheme==='dark'?'light':'dark';
+  applyTheme(n);
+  fetch('/api/theme',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({theme:n})});
+}
+
+// ══════════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════════
+function toggleSidebar(){
+  const sb=document.querySelector('.screen.active .sb');
+  $('sb-overlay').classList.toggle('open');
+  if(sb)sb.classList.toggle('open');
+}
+
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
+function swTab(role){
+  document.querySelectorAll('.ltab').forEach((b,i)=>b.classList.toggle('active',['teacher','student'][i]===role));
+  $('lid-lbl').textContent=role==='teacher'?'Teacher ID':'Roll Number';
+  $('lid').placeholder=role==='teacher'?'e.g. teacher1':'e.g. 23BCON1378';
+  $('demo-hint').innerHTML=role==='teacher'
+    ?`Teacher: <code style="color:var(--ac)">teacher1</code> / <code style="color:var(--ac)">teacher123</code>`
+    :`Enter your Roll Number &amp; password (default: <code style="color:var(--ac)">student123</code>)`;
+}
+
+async function doLogin(){
+  const id=$('lid').value.trim(), pw=$('lpw').value.trim();
+  const err=$('lerr');
+  err.classList.remove('show');
+  if(!id||!pw){err.textContent='Enter ID and password';err.classList.add('show');return}
+  $('lbtn').innerHTML=spin();
+  const r=await fetch('/api/login',{method:'POST',credentials:'include',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify({id,password:pw})});
+  const d=await r.json();
+  $('lbtn').textContent='Sign In →';
+  if(!r.ok){err.textContent=d.error||'Login failed';err.classList.add('show');return}
+  currentUser=d;
+  applyTheme(d.theme||'dark');
+  if(d.role==='teacher') enterTeacher(d);
+  else enterStudent(d);
+}
+
+function enterTeacher(u){
+  $('scr-login').classList.remove('active');
+  $('scr-teacher').classList.add('active');
+  const a=ac(u.id);
+  $('t-av').textContent=inits(u.name);$('t-av').style.background=a.bg;$('t-av').style.color=a.fg;
+  $('t-nm').textContent=u.name;
+  $('t-today').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  $('dd').value=today();$('att-d').value=today();
+  updateBadge('t',u.unread||0);
+  populateReportFilters();
+  loadDash();
+  loadStudents();
+}
+
+function enterStudent(u){
+  $('scr-login').classList.remove('active');
+  $('scr-student').classList.add('active');
+  const a=ac(u.id);
+  $('s-av').textContent=inits(u.name);$('s-av').style.background=a.bg;$('s-av').style.color=a.fg;
+  $('s-nm').textContent=u.name;
+  $('s-id').textContent=u.id;
+  $('s-today').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',month:'long',day:'numeric'});
+  updateBadge('s',u.unread||0);
+  loadStudentData();
+}
+
+async function doLogout(){
+  stopCamera();closeRegModal();
+  await fetch('/api/logout',{method:'POST',credentials:'include'});
+  currentUser=null;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $('scr-login').classList.add('active');
+  $('lid').value='';$('lpw').value='';
+}
+
+function updateBadge(role,n){
+  const el=$(role==='t'?'t-badge':'s-badge');
+  if(!el)return;
+  if(n>0){el.textContent=n;el.style.display='inline';}
+  else el.style.display='none';
+}
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function tPg(id){
+  document.querySelectorAll('#scr-teacher .pg').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#scr-teacher .ni').forEach(n=>n.classList.remove('active'));
+  $('tp-'+id).classList.add('active');
+  $('tn-'+id).classList.add('active');
+  const actions={attendance:loadAtt,students:loadStudents,reports:loadReports,defaulters:loadDefaulters,notifications:()=>loadNotifs('t')};
+  if(actions[id])actions[id]();
+  if(id==='camera')initCameraPage();
+  if(window.innerWidth<768)toggleSidebar();
+}
+
+function sPg(id){
+  document.querySelectorAll('#scr-student .pg').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#scr-student .ni').forEach(n=>n.classList.remove('active'));
+  $('sp-'+id).classList.add('active');
+  $('sn-'+id).classList.add('active');
+  if(id==='records')loadSRec();
+  if(id==='notifications')loadNotifs('s');
+  if(window.innerWidth<768)toggleSidebar();
+}
+
+// ══════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════
+async function loadDash(){
+  const d=$('dd').value||today();
+  const [ar,sr]=await Promise.all([
+    fetch(`/api/attendance?date=${d}`,{credentials:'include'}),
+    fetch('/api/students',{credentials:'include'})
+  ]);
+  const att=await ar.json(), stu=await sr.json();
+  const pr=att.filter(s=>s.status==='Present').length;
+  const ab=att.filter(s=>s.status==='Absent').length;
+  const pct=stu.length?Math.round(pr/stu.length*100):0;
+  $('dp').textContent=pr;$('da').textContent=ab;$('dt').textContent=stu.length;$('dr').textContent=pct+'%';
+
+  const defs=await(await fetch('/api/defaulters',{credentials:'include'})).json();
+  if(defs.length>0){$('risk-banner').classList.remove('hidden');$('risk-count').textContent=defs.length;}
+  else $('risk-banner').classList.add('hidden');
+
+  $('dash-grid').innerHTML=att.length?att.map(s=>{
+    const a=ac(s.id);const ip=s.status==='Present';
+    return`<div class="ac2 ${ip?'present':'absent'}">
+      <div class="a-av" style="background:${a.bg};color:${a.fg}">${inits(s.name)}</div>
+      <div style="flex:1;min-width:0"><div class="a-nm">${s.name}</div><div class="a-id">${s.id}</div></div>
+      <span class="badge ${ip?'bg':'br'}">${s.status}</span>
+    </div>`;
+  }).join(''):'<div style="color:var(--mt);font-size:13px;padding:16px;grid-column:1/-1">No students. Go to Students → Sync from face_data.</div>';
+}
+
+// ══════════════════════════════════════════
+// ATTENDANCE RECORDS
+// ══════════════════════════════════════════
+async function loadAtt(){
+  const d=$('att-d').value||today();
+  const r=await fetch(`/api/attendance?date=${d}`,{credentials:'include'});
+  const data=await r.json();
+  $('att-tbody').innerHTML=data.map(s=>{
+    const a=ac(s.id);const ip=s.status==='Present';
+    return`<tr>
+      <td><div style="display:flex;align-items:center;gap:9px">
+        <div class="a-av" style="background:${a.bg};color:${a.fg};width:30px;height:30px;font-size:11px">${inits(s.name)}</div>
+        <span style="font-weight:500">${s.name}</span>
+      </div></td>
+      <td style="color:var(--mt);font-family:var(--mo);font-size:12px">${s.id}</td>
+      <td><span class="badge ${ip?'bg':'br'}">${s.status}</span></td>
+      <td>
+        ${!ip?`<button class="btn btn-gn btn-sm" onclick="manMark('${s.id}','${s.name}','Present')">✓ Present</button>`:''}
+        ${ip?`<button class="btn btn-rd btn-sm" onclick="manMark('${s.id}','${s.name}','Absent')">✕ Absent</button>`:''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function manMark(id,name,status){
+  await fetch('/api/attendance/manual',{method:'POST',credentials:'include',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({student_id:id,status,subject:'General'})});
+  toast(name+' marked '+status);
+  loadAtt();loadDash();
+}
+
+// ══════════════════════════════════════════
+// STUDENTS
+// ══════════════════════════════════════════
+async function loadStudents(){
+  const r=await fetch('/api/students',{credentials:'include'});
+  const d=await r.json();
+  $('stu-count').textContent=d.length+' students';
+  $('stu-tbody').innerHTML=d.map(s=>{
+    const a=ac(s.id);
+    return`<tr>
+      <td style="font-family:var(--mo);font-size:12px;color:var(--mt)">${s.id}</td>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div class="a-av" style="background:${a.bg};color:${a.fg};width:27px;height:27px;font-size:10px">${inits(s.name)}</div>
+        ${s.name}
+      </div></td>
+      <td><button class="btn btn-rd btn-sm" onclick="deleteStudent('${s.id}','${s.name}')">🗑</button></td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="3" style="color:var(--dm);text-align:center;padding:20px">No students — click Sync from face_data</td></tr>';
+}
+
+async function addStudent(){
+  const id=$('ns-id').value.trim(), nm=$('ns-nm').value.trim(), pw=$('ns-pw').value.trim()||'student123';
+  if(!id||!nm){toast('Enter Roll No and Name','rd');return}
+  const r=await fetch('/api/students',{method:'POST',credentials:'include',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify({id,name:nm,password:pw})});
+  const d=await r.json();
+  if(r.ok){
+    toast(nm+' added!');
+    $('add-res').textContent=d.message;$('add-res').style.display='block';
+    $('ns-id').value='';$('ns-nm').value='';$('ns-pw').value='';
+    loadStudents();
+  }else toast(d.error||'Failed','rd');
+}
+
+async function deleteStudent(id,name){
+  if(!confirm(`Delete ${name}?`))return;
+  await fetch(`/api/students/${id}`,{method:'DELETE',credentials:'include'});
+  toast(name+' deleted','am');loadStudents();
+}
+
+async function syncStudents(){
+  const r=await fetch('/api/sync-students',{method:'POST',credentials:'include'});
+  const d=await r.json();
+  if(r.ok){
+    const n=d.synced.length;
+    toast(d.message+(n?': '+d.synced.map(s=>s.name).join(', '):''));
+    loadStudents();
+    if(n) toast('Students synced! They can now log in with password: student123','bl');
+  }else toast('Sync failed','rd');
+}
+
+// ══════════════════════════════════════════
+// REPORTS
+// ══════════════════════════════════════════
+function populateReportFilters(){
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const m=$('rep-month');
+  if(m)m.innerHTML=months.map((n,i)=>`<option value="${i+1}" ${i+1===new Date().getMonth()+1?'selected':''}>${n}</option>`).join('');
+  const y=$('rep-year');
+  if(y){const yr=new Date().getFullYear();y.innerHTML=[yr-1,yr,yr+1].map(v=>`<option value="${v}" ${v===yr?'selected':''}>${v}</option>`).join('')}
+}
+
+async function loadReports(){
+  const m=$('rep-month').value, y=$('rep-year').value;
+  const r=await fetch(`/api/monthly-summary?month=${m}&year=${y}`,{credentials:'include'});
+  const data=await r.json();
+  const isDark=currentTheme==='dark';
+  const tc=isDark?'#7A7F9A':'#6B7090', gc=isDark?'rgba(255,255,255,.05)':'rgba(0,0,0,.06)';
+
+  if(monthlyChartInst)monthlyChartInst.destroy();
+  const mc=$('monthlyChart');
+  if(mc) monthlyChartInst=new Chart(mc,{type:'bar',
+    data:{labels:data.map(s=>s.name.split(' ')[0]),datasets:[
+      {label:'Present',data:data.map(s=>s.present),backgroundColor:'rgba(29,217,160,.75)',borderRadius:5},
+      {label:'Absent',data:data.map(s=>s.absent),backgroundColor:'rgba(240,84,112,.55)',borderRadius:5}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:tc,font:{size:11}}}},
+      scales:{x:{stacked:true,grid:{color:gc},ticks:{color:tc,font:{size:10}}},
+              y:{stacked:true,grid:{color:gc},ticks:{color:tc,font:{size:10}}}}}});
+
+  if(pieChartInst)pieChartInst.destroy();
+  const tp=data.reduce((a,b)=>a+b.present,0), ta=data.reduce((a,b)=>a+b.absent,0);
+  const pc=$('pieChart');
+  if(pc) pieChartInst=new Chart(pc,{type:'doughnut',
+    data:{labels:['Present','Absent'],datasets:[{data:[tp,ta],backgroundColor:['rgba(29,217,160,.8)','rgba(240,84,112,.7)'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{labels:{color:tc,font:{size:12}}}}}});
+
+  $('monthly-tbody').innerHTML=data.map(s=>{
+    const ok=s.percentage>=75;const a=ac(s.id);
+    return`<tr>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div class="a-av" style="background:${a.bg};color:${a.fg};width:28px;height:28px;font-size:10px">${inits(s.name)}</div>${s.name}
+      </div></td>
+      <td style="color:var(--mt);font-family:var(--mo);font-size:12px">${s.id}</td>
+      <td style="color:var(--gn)">${s.present}</td>
+      <td style="color:var(--rd)">${s.absent}</td>
+      <td>${s.total}</td>
+      <td><strong style="color:${ok?'var(--gn)':'var(--rd)'}">${s.percentage}%</strong></td>
+      <td><span class="badge ${ok?'bg':'br'}">${ok?'OK':'DEFAULTER'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function exportCSV(){
+  const m=$('rep-month').value, y=$('rep-year').value;
+  window.open(`/api/export/csv?month=${m}&year=${y}`,'_blank');
+}
+
+async function generatePDF(){
+  $('pdf-loading').classList.add('show');
+  try{
+    const m=$('rep-month').value, y=$('rep-year').value;
+    const r=await fetch(`/api/monthly-summary?month=${m}&year=${y}`,{credentials:'include'});
+    const data=await r.json();
+    const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const{jsPDF}=window.jspdf; const doc=new jsPDF();
+    doc.setFillColor(79,142,247);doc.rect(0,0,210,30,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(18);doc.setFont('helvetica','bold');
+    doc.text('EduTrack LMS — Attendance Report',15,12);
+    doc.setFontSize(11);doc.setFont('helvetica','normal');
+    doc.text(`${mn[m-1]} ${y}  |  ${new Date().toLocaleDateString()}`,15,22);
+    doc.setTextColor(30,30,30);doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text('Summary',15,40);
+    doc.setFont('helvetica','normal');doc.setFontSize(10);
+    const tp=data.reduce((a,b)=>a+b.present,0),ta=data.reduce((a,b)=>a+b.absent,0);
+    const avg=data.length?Math.round(data.reduce((a,b)=>a+b.percentage,0)/data.length):0;
+    const def=data.filter(s=>s.percentage<75).length;
+    [`Total Students: ${data.length}`,`Present: ${tp}`,`Absent: ${ta}`,`Avg Attendance: ${avg}%`,`Defaulters (<75%): ${def}`]
+      .forEach((s,i)=>doc.text(s,15,48+i*7));
+    const tY=90;
+    doc.setFillColor(240,243,255);doc.rect(10,tY-6,190,9,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(60,60,100);
+    ['Roll No','Name','Present','Absent','Total','%','Status'].forEach((h,i)=>doc.text(h,[12,42,112,132,152,165,178][i],tY));
+    doc.setFont('helvetica','normal');
+    data.forEach((s,i)=>{
+      const ry=tY+8+i*8; if(ry>280)return;
+      const ok=s.percentage>=75;
+      if(!ok){doc.setFillColor(255,240,240);doc.rect(10,ry-5,190,8,'F');}
+      doc.setTextColor(60,60,60);
+      [s.id,s.name.substring(0,22),s.present,s.absent,s.total].forEach((v,j)=>doc.text(String(v),[12,42,114,134,154][j],ry));
+      doc.setTextColor(ok?0:180,ok?120:0,ok?60:0);
+      doc.text(s.percentage+'%',165,ry);doc.text(ok?'OK':'LOW',178,ry);
+    });
+    doc.setTextColor(150,150,150);doc.setFontSize(8);doc.text('EduTrack LMS  •  Confidential',15,290);
+    doc.save(`Attendance_${mn[m-1]}_${y}.pdf`);toast('PDF downloaded!');
+  }catch(e){toast('PDF error: '+e.message,'rd');}
+  $('pdf-loading').classList.remove('show');
+}
+
+// ══════════════════════════════════════════
+// DEFAULTERS
+// ══════════════════════════════════════════
+async function loadDefaulters(){
+  const thr=$('def-threshold').value||75;
+  const r=await fetch(`/api/defaulters?threshold=${thr}`,{credentials:'include'});
+  const data=await r.json();
+  $('def-stats').innerHTML=`
+    <div class="sc"><div class="sib">🚨</div><div class="sl">At Risk</div><div class="sv cr">${data.length}</div><div class="sn">below ${thr}%</div></div>
+    <div class="sc"><div class="sib">📉</div><div class="sl">Lowest</div><div class="sv cr">${data.length?data[0].percentage+'%':'—'}</div><div class="sn">attendance</div></div>
+    <div class="sc"><div class="sib">📊</div><div class="sl">Avg (At-Risk)</div><div class="sv ca">${data.length?Math.round(data.reduce((a,b)=>a+b.percentage,0)/data.length)+'%':'—'}</div><div class="sn">average</div></div>
+    <div class="sc"><div class="sib">📅</div><div class="sl">Classes Needed</div><div class="sv cb">${data.reduce((a,b)=>a+b.classes_needed,0)||'—'}</div><div class="sn">total</div></div>`;
+  $('def-list').innerHTML=data.length?data.map(s=>{
+    const a=ac(s.id);
+    return`<div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--b1)">
+      <div class="a-av" style="background:${a.bg};color:${a.fg}">${inits(s.name)}</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:13.5px">${s.name}</div>
+        <div style="font-size:11.5px;color:var(--mt)">${s.id} · ${s.present}/${s.total} classes</div>
+        <div class="pb" style="margin-top:6px;width:200px"><div class="pf" style="width:${s.percentage}%;background:${s.percentage<60?'var(--rd)':'var(--am)'}"></div></div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:24px;font-weight:800;color:${s.percentage<60?'var(--rd)':'var(--am)'}">${s.percentage}%</div>
+        <div style="font-size:11px;color:var(--mt)">needs ${s.classes_needed} more</div>
+      </div>
+    </div>`;
+  }).join(''):'<div style="color:var(--mt);font-size:13px;padding:20px;text-align:center">🎉 No students below threshold!</div>';
+}
+function notifyAll(){toast('🔔 Notifications sent to all at-risk students','am')}
+
+// ══════════════════════════════════════════
+// NOTIFICATIONS
+// ══════════════════════════════════════════
+async function loadNotifs(role){
+  const r=await fetch('/api/notifications',{credentials:'include'});
+  const data=await r.json();
+  const id=role==='t'?'notif-list-t':'notif-list-s';
+  const icons={info:'ℹ️',success:'✅',warning:'⚠️',danger:'🚨'};
+  $(id).innerHTML=data.length?data.map(n=>`
+    <div class="notif-item">
+      <div class="notif-dot ${n.is_read?'read':'unread'}"></div>
+      <div>
+        <div class="notif-txt">${icons[n.type]||'📌'} ${n.message}</div>
+        <div class="notif-time">${n.created_at}</div>
+      </div>
+    </div>`).join(''):'<div style="color:var(--mt);padding:24px;text-align:center">No notifications yet</div>';
+}
+
+async function markRead(role){
+  await fetch('/api/notifications/read',{method:'POST',credentials:'include'});
+  updateBadge(role,0);loadNotifs(role);toast('All marked as read');
+}
+
+// ══════════════════════════════════════════
+// PASSWORD CHANGE
+// ══════════════════════════════════════════
+async function changePw(role){
+  const p=role==='t'?'t-':'s-';
+  const old=$(p+'old-pw').value.trim(), nw=$(p+'new-pw').value.trim(), conf=$(p+'conf-pw').value.trim();
+  const msg=$('pw-msg-'+role);
+  if(!old||!nw||!conf){msg.textContent='Fill all fields';msg.style.color='var(--rd)';msg.style.display='block';return}
+  if(nw!==conf){msg.textContent='Passwords do not match';msg.style.color='var(--rd)';msg.style.display='block';return}
+  if(nw.length<6){msg.textContent='Minimum 6 characters';msg.style.color='var(--rd)';msg.style.display='block';return}
+  const r=await fetch('/api/change-password',{method:'POST',credentials:'include',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify({old_password:old,new_password:nw})});
+  const d=await r.json();
+  if(r.ok){
+    msg.textContent='✅ Password changed!';msg.style.color='var(--gn)';msg.style.display='block';
+    [p+'old-pw',p+'new-pw',p+'conf-pw'].forEach(id=>{const e=$(id);if(e)e.value=''});
+    toast('Password updated!');
+  }else{msg.textContent=d.error||'Failed';msg.style.color='var(--rd)';msg.style.display='block';toast(d.error||'Failed','rd');}
+}
+
+// ══════════════════════════════════════════
+// CAMERA INIT
+// ══════════════════════════════════════════
+async function initCameraPage(){
+  if(faceModelsLoaded)return;
+  $('cam-loading').classList.add('show');
+  const fill=$('load-fill');
+  try{
+    const URL='https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js/weights';
+    $('cam-loading-txt').textContent='Loading detector…';fill.style.width='20%';
+    await faceapi.nets.tinyFaceDetector.loadFromUri(URL);
+    $('cam-loading-txt').textContent='Loading landmarks…';fill.style.width='50%';
+    await faceapi.nets.faceLandmark68Net.loadFromUri(URL);
+    $('cam-loading-txt').textContent='Loading recognition…';fill.style.width='75%';
+    await faceapi.nets.faceRecognitionNet.loadFromUri(URL);
+    $('cam-loading-txt').textContent='Loading expressions…';fill.style.width='90%';
+    await faceapi.nets.faceExpressionNet.loadFromUri(URL);
+    fill.style.width='100%';
+    faceModelsLoaded=true;
+    $('cam-loading-txt').textContent='Loading student photos…';
+    await loadKnownDescriptors();
+    $('cam-loading').classList.remove('show');
+    toast('Ready! '+knownDescriptors.length+' students loaded','bl');
+  }catch(e){
+    $('cam-loading-txt').textContent='Error: '+e.message;
+    toast('Error loading models: '+e.message,'rd');
+  }
+}
+
+async function loadKnownDescriptors(){
+  knownDescriptors=[];
+  try{
+    const r=await fetch('/api/student-photos',{credentials:'include'});
+    const list=await r.json();
+    if(!list.length){toast('No photos in face_data/ — add photos or sync students','am');return}
+    for(const s of list){
+      try{
+        const img=await faceapi.fetchImage(s.photo_url);
+        const det=await faceapi.detectSingleFace(img,new faceapi.TinyFaceDetectorOptions({inputSize:320,scoreThreshold:0.3}))
+          .withFaceLandmarks().withFaceDescriptor();
+        if(det){
+          knownDescriptors.push({student_id:s.student_id,name:s.name,descriptor:det.descriptor});
+          console.log('[face] Loaded:',s.name);
+        }else{
+          console.warn('[face] No face found in photo:',s.name);
+        }
+      }catch(e){console.warn('[face]',s.name,e.message)}
+    }
+    console.log('[face] Total loaded:',knownDescriptors.length);
+  }catch(e){console.error('[face]',e)}
+}
+
+// ══════════════════════════════════════════
+// LIVENESS — HEAD MOVEMENT
+// ══════════════════════════════════════════
+function processLiveness(landmarks, studentId){
+  if(!livenessEnabled) return true;
+  if(livenessConfirmed[studentId]) return true;
+
+  const lm=landmarks.positions;
+  // Nose tip = landmark 30
+  const nose={x:lm[30]._x, y:lm[30]._y};
+
+  if(!nosePosHistory[studentId]) nosePosHistory[studentId]=[];
+  nosePosHistory[studentId].push(nose);
+  if(nosePosHistory[studentId].length>HEAD_HISTORY_LEN)
+    nosePosHistory[studentId].shift();
+
+  const hist=nosePosHistory[studentId];
+  if(hist.length<5) return false;
+
+  const xs=hist.map(p=>p.x), ys=hist.map(p=>p.y);
+  const moveX=Math.max(...xs)-Math.min(...xs);
+  const moveY=Math.max(...ys)-Math.min(...ys);
+  const totalMove=Math.sqrt(moveX*moveX+moveY*moveY);
+
+  const pct=Math.min(100,Math.round(totalMove/HEAD_MOVE_THRESHOLD*100));
+  const f=$('live-fill');
+  if(f){
+    f.style.width=pct+'%';
+    f.style.background=pct>=100?'var(--gn)':pct>60?'var(--am)':'var(--rd)';
+    $('live-val').textContent=Math.round(totalMove)+'px';
+    $('live-status').textContent=pct>=100?'✅ Live!':'Moving: '+pct+'%';
+  }
+
+  if(totalMove>=HEAD_MOVE_THRESHOLD){
+    livenessConfirmed[studentId]=true;
+    const name=knownDescriptors.find(k=>k.student_id===studentId)?.name||studentId;
+    console.log('[liveness] Confirmed:',name,'| move=',totalMove.toFixed(1),'px');
+    return true;
+  }
+  return false;
+}
+
+function resetLiveness(){
+  nosePosHistory={};livenessConfirmed={};sessionMarked=new Set();
+  const f=$('live-fill');
+  if(f){f.style.width='0%';f.style.background='var(--rd)';}
+  $('live-val').textContent='0px';$('live-status').textContent='Move slightly';
+  toast('Liveness reset — students must move head again','bl');
+}
+
+function updateLivenessScan(){
+  if(livenessEnabled&&camStream)$('liveness-scan').classList.add('active');
+  else $('liveness-scan').classList.remove('active');
+}
+
+// ══════════════════════════════════════════
+// CAMERA START / STOP
+// ══════════════════════════════════════════
+async function startCamera(){
+  if(!faceModelsLoaded){toast('Models still loading, please wait…','am');return}
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'},audio:false});
+    const v=$('cam-video');
+    v.srcObject=camStream;v.style.display='block';
+    $('cam-ph').style.display='none';
+    $('btn-start').style.display='none';$('btn-stop').style.display='flex';
+    $('btn-mark').disabled=false;
+    $('fps-badge').style.display='inline';
+    updateLivenessScan();
+    setCamSt('gn','Camera live — tracking…');
+    v.onloadedmetadata=()=>{
+      const c=$('cam-canvas');
+      c.width=v.clientWidth||640;c.height=v.clientHeight||480;
+      startLoop();
+    };
+    toast('Camera started');
+  }catch(e){
+    setCamSt('rd','Camera denied');
+    toast('Camera error: '+e.message,'rd');
+  }
+}
+
+function stopCamera(){
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}
+  if(animFrame){cancelAnimationFrame(animFrame);animFrame=null}
+  $('cam-video').style.display='none';$('cam-video').srcObject=null;
+  $('cam-ph').style.display='flex';
+  $('btn-start').style.display='flex';$('btn-stop').style.display='none';
+  $('btn-mark').disabled=true;
+  $('fps-badge').style.display='none';
+  $('liveness-scan').classList.remove('active');
+  clearCanvas();setCamSt('off','Camera off');
+  $('det-list').innerHTML='<div class="det-empty">Start camera to track</div>';
+  $('det-cnt').textContent='0';lastDetections=[];
+}
+
+function setCamSt(t,m){$('sdot').className='sdot sdot-'+t;$('s-txt').textContent=m}
+function clearCanvas(){const c=$('cam-canvas');c.getContext('2d').clearRect(0,0,c.width,c.height)}
+
+// ══════════════════════════════════════════
+// DETECTION LOOP
+// ══════════════════════════════════════════
+async function startLoop(){
+  const video=$('cam-video'), canvas=$('cam-canvas');
+  async function loop(){
+    if(!camStream||video.readyState<2){animFrame=requestAnimationFrame(loop);return}
+    // Resize canvas to match video
+    const rect=video.getBoundingClientRect();
+    if(rect.width>0&&(canvas.width!==Math.round(rect.width)||canvas.height!==Math.round(rect.height))){
+      canvas.width=Math.round(rect.width);canvas.height=Math.round(rect.height);
+    }
+    frameCount++;
+    if(frameCount%4===0){
+      try{
+        const dets=await faceapi
+          .detectAllFaces(video,new faceapi.TinyFaceDetectorOptions({inputSize:320,scoreThreshold:0.4}))
+          .withFaceLandmarks()
+          .withFaceExpressions()
+          .withFaceDescriptors();
+
+        lastDetections=dets.map(d=>{
+          if(!knownDescriptors.length)
+            return{box:d.detection.box,label:'No students loaded',sid:null,matched:false,live:!livenessEnabled,emotion:'neutral'};
+
+          // Find closest matching student
+          let best={dist:Infinity,student:null};
+          for(const kd of knownDescriptors){
+            const dist=faceapi.euclideanDistance(d.descriptor,kd.descriptor);
+            if(dist<best.dist)best={dist,student:kd};
+          }
+          const matched=best.dist<THRESHOLD&&best.student!==null;
+          const sid=matched?best.student.student_id:null;
+
+          // Check liveness
+          const live=matched?processLiveness(d.landmarks,sid):false;
+
+          // Emotion
+          let emotion='neutral';
+          if(d.expressions){
+            emotion=Object.entries(d.expressions).sort((a,b)=>b[1]-a[1])[0][0];
+          }
+
+          return{box:d.detection.box,label:matched?best.student.name:'Unknown',sid,matched,live,emotion};
+        });
+
+        // ══ AUTO-MARK: save as soon as verified ══
+        if(autoMarkEnabled&&!autoMarkInProgress){
+          const newlyVerified=lastDetections.filter(d=>
+            d.matched&&d.live&&d.sid&&!sessionMarked.has(d.sid)
+          );
+          if(newlyVerified.length>0){
+            autoMarkInProgress=true;
+            await doAutoMark(newlyVerified);
+            autoMarkInProgress=false;
+          }
+        }
+
+        updateDetPanel(lastDetections);
+        updateEmotionPanel(lastDetections);
+      }catch(e){/* silently continue */}
+    }
+
+    drawOverlay(canvas,lastDetections,video);
+    fpsCounter++;
+    if(Date.now()-fpsTime>=1000){
+      $('fps-badge').textContent=fpsCounter+' fps';
+      fpsCounter=0;fpsTime=Date.now();
+    }
+    animFrame=requestAnimationFrame(loop);
+  }
+  animFrame=requestAnimationFrame(loop);
+}
+
+// ══════════════════════════════════════════
+// AUTO-MARK — THE KEY FUNCTION
+// Called the moment a face is verified+live
+// ══════════════════════════════════════════
+async function doAutoMark(verified){
+  const ids=verified.map(d=>d.sid);
+  const names=verified.map(d=>d.label);
+  const subject=$('cam-subject').value||'General';
+
+  try{
+    const r=await fetch('/api/attendance/mark-detected',{
+      method:'POST',credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({student_ids:ids,subject})
+    });
+    const data=await r.json();
+    if(!r.ok){console.error('[auto-mark] Server error:',data);return}
+
+    // Add to session so we don't re-mark
+    ids.forEach(id=>sessionMarked.add(id));
+
+    // Flash overlay on camera box
+    const fl=$('am-flash');
+    $('am-flash-txt').textContent='✅ '+names.join(' & ')+' marked Present!';
+    fl.classList.add('show');
+    setTimeout(()=>fl.classList.remove('show'),2500);
+
+    toast('⚡ Auto-marked: '+names.join(', '));
+    console.log('[auto-mark] Success:',ids,'on',data.date);
+
+    // Refresh dashboard
+    loadDash();
+
+  }catch(e){
+    console.error('[auto-mark] Error:',e);
+  }
+}
+
+// ══════════════════════════════════════════
+// CANVAS DRAWING
+// ══════════════════════════════════════════
+function drawOverlay(canvas,dets,video){
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(!dets||!dets.length)return;
+  const sx=canvas.width/(video.videoWidth||640);
+  const sy=canvas.height/(video.videoHeight||480);
+
+  dets.forEach(det=>{
+    const b=det.box;
+    const x=b.x*sx, y=b.y*sy, w=b.width*sx, h=b.height*sy;
+    const alreadyMarked=det.sid&&sessionMarked.has(det.sid);
+
+    // Colors: gold=done, green=verified+live, amber=recognized+not live, red=unknown
+    const clr=alreadyMarked?'#FFD700':det.matched?(det.live?'#1DD9A0':'#F5A623'):'#F05470';
+
+    // Box border
+    ctx.strokeStyle=clr;ctx.lineWidth=2.5;ctx.strokeRect(x,y,w,h);
+
+    // Corner accents
+    const cs=Math.min(18,w*.22,h*.22);
+    ctx.lineWidth=3.5;ctx.strokeStyle=clr;
+    [[x,y,1,1],[x+w,y,-1,1],[x,y+h,1,-1],[x+w,y+h,-1,-1]].forEach(([cx,cy,dx,dy])=>{
+      ctx.beginPath();ctx.moveTo(cx+dx*cs,cy);ctx.lineTo(cx,cy);ctx.lineTo(cx,cy+dy*cs);ctx.stroke();
+    });
+
+    // Label background
+    const label=det.label;
+    const sub=alreadyMarked?'✅ Attendance saved!'
+      :det.matched?(det.live?det.sid:'🙂 Move head slightly'):'Not registered';
+    ctx.font='bold 13px Outfit, sans-serif';
+    const lw=Math.max(ctx.measureText(label).width,ctx.measureText(sub).width)+24;
+    const lh=46, ly=Math.max(0,y-lh);
+    ctx.fillStyle=alreadyMarked?'rgba(255,215,0,.93)'
+      :det.matched?(det.live?'rgba(29,217,160,.93)':'rgba(245,166,35,.93)'):'rgba(240,84,112,.93)';
+    ctx.beginPath();
+    if(ctx.roundRect)ctx.roundRect(x,ly,lw,lh,[6,6,0,0]);
+    else ctx.rect(x,ly,lw,lh);
+    ctx.fill();
+
+    // Label text
+    ctx.fillStyle=alreadyMarked?'#000':'#fff';
+    ctx.font='bold 13px Outfit, sans-serif';
+    ctx.fillText(label,x+10,ly+17);
+    ctx.font='11px Outfit, sans-serif';
+    ctx.fillStyle=alreadyMarked?'rgba(0,0,0,.75)':'rgba(255,255,255,.88)';
+    ctx.fillText(sub,x+10,ly+33);
+
+    // Emotion emoji
+    if(emotionEnabled&&det.emotion&&EMOTION_ICONS[det.emotion]){
+      ctx.font='20px serif';
+      ctx.fillText(EMOTION_ICONS[det.emotion],x+w-26,Math.max(20,y-lh-4));
+    }
+  });
+}
+
+function updateDetPanel(dets){
+  $('det-cnt').textContent=dets.length;
+  if(!dets.length){$('det-list').innerHTML='<div class="det-empty" style="color:var(--rd)">⚠ No faces detected</div>';return}
+  $('det-list').innerHTML=dets.map(d=>{
+    const a=d.matched?ac(d.sid||'x'):{bg:'rgba(240,84,112,.15)',fg:'var(--rd)'};
+    const marked=d.sid&&sessionMarked.has(d.sid);
+    const icon=marked?'🏅':d.matched?(d.live?'🟢':'🟡'):'🔴';
+    const em=emotionEnabled&&d.emotion?EMOTION_ICONS[d.emotion]||'':'';
+    return`<div class="det-item">
+      <div class="det-av" style="background:${a.bg};color:${a.fg}">${d.matched?inits(d.label):'?'}</div>
+      <div>
+        <div class="det-name">${d.label} ${em}</div>
+        <div class="det-sub2">${marked?'✅ Marked present':d.matched?(d.live?d.sid+' ✓':'Move head slightly'):'Not in database'}</div>
+      </div>
+      <div class="det-st" style="color:${marked?'var(--am)':d.matched&&d.live?'var(--gn)':d.matched?'var(--am)':'var(--rd)'}">${icon}</div>
+    </div>`;
+  }).join('');
+}
+
+function updateEmotionPanel(dets){
+  if(!emotionEnabled){$('emotion-summary').textContent='Emotion tracking off.';return}
+  if(!dets||!dets.length){$('emotion-summary').textContent='No faces…';return}
+  const counts={};
+  dets.forEach(d=>{if(d.emotion)counts[d.emotion]=(counts[d.emotion]||0)+1});
+  const eng=dets.filter(d=>['happy','neutral','surprised'].includes(d.emotion)).length;
+  const pct=Math.round(eng/dets.length*100);
+  const dom=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+  $('emotion-summary').innerHTML=`
+    <div style="margin-bottom:6px">Engagement: <strong style="color:${pct>=70?'var(--gn)':pct>=50?'var(--am)':'var(--rd)'}">${pct}%</strong></div>
+    <div style="font-size:12px;color:var(--mt);margin-bottom:6px">Dominant: ${EMOTION_ICONS[dom[0]]||'😐'} ${dom[0]}</div>
+    <div style="display:flex;gap:5px;flex-wrap:wrap">
+      ${Object.entries(counts).map(([e,n])=>`<span style="background:var(--s3);padding:2px 8px;border-radius:20px;font-size:11px">${EMOTION_ICONS[e]||'😐'} ${n}</span>`).join('')}
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+// MANUAL SAVE
+// ══════════════════════════════════════════
+async function markDetected(){
+  const valid=lastDetections.filter(d=>d.matched&&d.sid&&(d.live||!livenessEnabled));
+  if(!valid.length){
+    toast(livenessEnabled?'No verified students — move head or click Reset Liveness':'No recognized students in frame','am');
+    return;
+  }
+  const ids=[...new Set(valid.map(d=>d.sid))];
+  $('btn-mark-inner').innerHTML=spin()+' Saving…';$('btn-mark').disabled=true;
+  const subject=$('cam-subject').value||'General';
+  const r=await fetch('/api/attendance/mark-detected',{method:'POST',credentials:'include',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify({student_ids:ids,subject})});
+  const data=await r.json();
+  $('btn-mark-inner').textContent='📸 Save Manually';$('btn-mark').disabled=false;
+  if(!r.ok){toast(data.error||'Failed','rd');return}
+
+  ids.forEach(id=>sessionMarked.add(id));
+
+  // Session summary
+  try{
+    const total=(await(await fetch('/api/students',{credentials:'include'})).json()).length;
+    const defs=await(await fetch('/api/defaulters',{credentials:'include'})).json();
+    const present=sessionMarked.size, absent=total-present;
+    $('session-summary-txt').textContent=`✅ ${present}/${total} present · ${absent} absent · ${defs.length} below 75%`;
+    $('sum-grid').innerHTML=`
+      <div class="sum-item"><div class="sum-val cg">${present}</div><div class="sum-lbl">Present</div></div>
+      <div class="sum-item"><div class="sum-val cr">${absent}</div><div class="sum-lbl">Absent</div></div>
+      <div class="sum-item"><div class="sum-val ca">${defs.length}</div><div class="sum-lbl">At Risk</div></div>`;
+    $('session-summary').classList.add('show');
+  }catch(e){}
+
+  const names=valid.map(d=>d.label);
+  $('marked-body').innerHTML=`
+    <div style="color:var(--gn);font-weight:600;margin-bottom:8px">✅ ${ids.length} student(s) marked Present</div>
+    ${ids.map((id,i)=>{const a=ac(id);return`
+      <div style="display:flex;align-items:center;gap:10px;background:var(--s3);border-radius:8px;padding:8px 12px;margin-bottom:6px">
+        <div class="a-av" style="background:${a.bg};color:${a.fg};width:28px;height:28px;font-size:11px">${inits(names[i]||id)}</div>
+        <div><div style="font-size:13px;font-weight:600">${names[i]||id}</div><div style="font-size:11px;color:var(--mt)">${id}</div></div>
+        <span class="badge bg" style="margin-left:auto">Present ✓</span>
+      </div>`;}).join('')}
+    <div style="font-size:12px;color:var(--mt);margin-top:4px">Subject: ${subject} · ${data.date}</div>`;
+  $('marked-box').classList.add('show');
+  toast(ids.length+' student(s) marked present!');
+  loadDash();
+}
+
+// ══════════════════════════════════════════
+// FACE REGISTRATION
+// ══════════════════════════════════════════
+async function openFaceRegModal(){
+  const r=await fetch('/api/students',{credentials:'include'});
+  const students=await r.json();
+  $('reg-student-sel').innerHTML=students.map(s=>`<option value="${s.id}" data-name="${s.name}">${s.name} (${s.id})</option>`).join('');
+  capturedFaces=[];$('face-preview').innerHTML='';$('save-faces-btn').disabled=true;
+  $('face-reg-modal').classList.add('open');
+  try{
+    regCamStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+    $('face-reg-video').srcObject=regCamStream;
+  }catch(e){toast('Camera error: '+e.message,'rd')}
+}
+
+function closeRegModal(){
+  $('face-reg-modal').classList.remove('open');
+  if(regCamStream){regCamStream.getTracks().forEach(t=>t.stop());regCamStream=null}
+}
+
+function captureRegFace(){
+  const v=$('face-reg-video'), c=$('face-reg-canvas');
+  c.width=v.videoWidth;c.height=v.videoHeight;
+  c.getContext('2d').drawImage(v,0,0);
+  const b64=c.toDataURL('image/jpeg',.85);
+  capturedFaces.push(b64);
+  const img=document.createElement('img');img.src=b64;img.className='face-thumb';
+  $('face-preview').appendChild(img);
+  $('save-faces-btn').disabled=false;
+  toast('Photo '+capturedFaces.length+' captured!','bl');
+}
+
+async function saveFaces(){
+  const sel=$('reg-student-sel');
+  const sid=sel.value, name=sel.options[sel.selectedIndex].dataset.name;
+  $('save-faces-btn').innerHTML=spin()+' Saving…';$('save-faces-btn').disabled=true;
+  let saved=0;
+  for(const img of capturedFaces){
+    const r=await fetch('/api/register-face',{method:'POST',credentials:'include',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({student_id:sid,name,image:img})});
+    if(r.ok)saved++;
+  }
+  $('save-faces-btn').innerHTML='💾 Save All';$('save-faces-btn').disabled=false;
+  toast(saved+' photos saved for '+name+'!');
+  closeRegModal();
+  if(faceModelsLoaded){
+    toast('Reloading face models…','bl');
+    await loadKnownDescriptors();
+    toast('Face models updated — '+knownDescriptors.length+' students ready!');
+  }
+}
+
+// ══════════════════════════════════════════
+// STUDENT PORTAL — loadStudentData
+// This is what shows data on the student screen
+// ══════════════════════════════════════════
+async function loadStudentData(){
+  try{
+    const r=await fetch('/api/my/attendance',{credentials:'include'});
+
+    if(r.status===401){
+      // Student not logged in or session expired
+      console.warn('[student] 401 — not logged in');
+      return;
+    }
+
+    if(!r.ok){
+      console.error('[student] API error:',r.status);
+      showStudentEmpty();
+      return;
+    }
+
+    const d=await r.json();
+    const st=d.stats;
+    console.log('[student] Stats:', st);
+    console.log('[student] Records:', d.records.length);
+
+    if(st.total===0){
+      // No records yet — show friendly empty state
+      showStudentEmpty();
+      $('s-pct').textContent='0%';$('s-big').textContent='0%';
+      $('s-pr').textContent='0';$('s-ab').textContent='0';$('s-tot').textContent='0';
+      return;
+    }
+
+    // Populate stats cards
+    $('s-pct').textContent=st.percentage+'%';
+    $('s-pr').textContent=st.present;
+    $('s-ab').textContent=st.absent;
+    $('s-tot').textContent=st.total;
+    $('s-big').textContent=st.percentage+'%';
+
+    // Color the big percentage
+    $('s-big').className='big-pct '+(st.percentage>=75?'cg':st.percentage>=60?'ca':'cr');
+
+    // Progress bar
+    const prog=$('s-prog');
+    prog.style.width=Math.min(100,st.percentage)+'%';
+    prog.style.background=st.percentage>=75?'var(--gn)':st.percentage>=60?'var(--am)':'var(--rd)';
+
+    // Check if marked present today
+    const todayStr=today();
+    const todayRecord=d.records.find(r=>r.date===todayStr&&r.status==='Present');
+    if(todayRecord){
+      $('s-present-banner').classList.remove('hidden');
+      $('s-present-detail').textContent=`${fmtD(todayStr)} · Subject: ${todayRecord.subject||'General'}`;
+    }else{
+      $('s-present-banner').classList.add('hidden');
+    }
+
+    // Risk / OK alert
+    const ab=$('s-alert-box');
+    $('s-risk-banner').classList.add('hidden');
+    if(st.percentage<75){
+      $('s-risk-banner').classList.remove('hidden');
+      $('s-risk-msg').textContent=`⚠️ Attendance: ${st.percentage}% — need ${st.classes_needed} more classes to reach 75%.`;
+      ab.style.cssText='display:block;background:rgba(240,84,112,.1);border:1px solid rgba(240,84,112,.25);border-radius:8px;padding:11px 14px;color:var(--rd)';
+      ab.textContent=`⚠️ Need ${st.classes_needed} more classes to avoid detention.`;
+    }else{
+      ab.style.cssText='display:block;background:rgba(29,217,160,.08);border:1px solid rgba(29,217,160,.2);border-radius:8px;padding:11px 14px;color:var(--gn)';
+      ab.textContent='✅ Good attendance — Keep it up!';
+    }
+
+    // Recent activity (last 8)
+    const rc=d.records.slice(0,8);
+    $('s-recent').innerHTML=rc.length?rc.map(r=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--b1)">
+        <div>
+          <div style="font-size:13px;font-weight:500">${fmtD(r.date)}</div>
+          <div style="font-size:11px;color:var(--mt)">${dayN(r.date)} · ${r.subject||'General'}</div>
+        </div>
+        <span class="badge ${r.status==='Present'?'bg':'br'}" style="margin-left:auto">${r.status}</span>
+      </div>`).join(''):'<div style="color:var(--dm);font-size:13px;padding:16px 0;text-align:center">No records yet</div>';
+
+    // Full records table
+    renderSRec(d.records);
+
+  }catch(e){
+    console.error('[student] loadStudentData error:',e);
+    showStudentEmpty();
+  }
+}
+
+function showStudentEmpty(){
+  const ab=$('s-alert-box');
+  ab.style.cssText='display:block;background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);border-radius:8px;padding:11px 14px;color:var(--ac)';
+  ab.textContent='ℹ️ No attendance records yet. Your attendance will appear here after the teacher marks you present.';
+  $('s-recent').innerHTML='<div style="color:var(--dm);font-size:13px;padding:16px 0;text-align:center">No records yet — attend class to see your attendance here</div>';
+  $('s-present-banner').classList.add('hidden');
+  $('s-risk-banner').classList.add('hidden');
+}
+
+async function loadSRec(){
+  try{
+    const r=await fetch('/api/my/attendance',{credentials:'include'});
+    if(!r.ok){$('s-tbody').innerHTML='<tr><td colspan="4" style="color:var(--dm);text-align:center;padding:22px">No records yet</td></tr>';return}
+    const d=await r.json();
+    renderSRec(d.records);
+  }catch(e){}
+}
+
+function renderSRec(records){
+  $('s-tbody').innerHTML=records.length?records.map(r=>`
+    <tr>
+      <td style="font-weight:500">${fmtD(r.date)}</td>
+      <td style="color:var(--mt)">${dayN(r.date)}</td>
+      <td style="color:var(--mt);font-size:12px">${r.subject||'General'}</td>
+      <td><span class="badge ${r.status==='Present'?'bg':'br'}">${r.status}</span></td>
+    </tr>`).join(''):'<tr><td colspan="4" style="color:var(--dm);text-align:center;padding:22px">No records yet</td></tr>';
+}
+
+// ══════════════════════════════════════════
+// APP INIT — restore session on page load
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',async()=>{
+  try{
+    const r=await fetch('/api/me',{credentials:'include'});
+    if(r.ok){
+      const u=await r.json();
+      currentUser=u;
+      applyTheme(u.theme||'dark');
+      if(u.role==='teacher') enterTeacher(u);
+      else enterStudent(u);
+    }
+  }catch(e){/* not logged in */}
+});
+</script>
+</body>
+</html>
