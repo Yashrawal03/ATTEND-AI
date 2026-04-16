@@ -143,7 +143,14 @@ Password: student123
 * 🧠 Anti-Spoofing (Blink Detection)
 * ☁️ Cloud Deployment
 * 📱 Mobile App Integration
+---
+---
 
+## 👨‍💻 Contributor
+
+* @chouhandrs864-dotcom
+
+---
 
 
 <p align="center">
