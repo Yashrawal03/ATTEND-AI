@@ -123,16 +123,6 @@ http://localhost:5000
 
 ---
 
-## 📸 Demo (Add Screenshots/GIF)
-
-> Add screenshots or demo video here for better visibility 👇
-
-```
-![Demo](your-demo-link-here)
-```
-
----
-
 ## 👨‍💻 Contributors
 
 | Name  | GitHub                |
