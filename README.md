@@ -3,28 +3,32 @@
 ### AI-Powered Smart Attendance System using Face Recognition
 
 <p align="center">
-  <img src="https://img.shields.io/badge/AI-Face%20Recognition-blue?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Backend-Flask-green?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Frontend-JavaScript-yellow?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Database-SQLite-lightgrey?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/AI-Face%20Recognition-blue?style=for-the-badge&logo=ai" />
+  <img src="https://img.shields.io/badge/Backend-Flask-green?style=for-the-badge&logo=python" />
+  <img src="https://img.shields.io/badge/Frontend-JavaScript-yellow?style=for-the-badge&logo=javascript" />
+  <img src="https://img.shields.io/badge/Database-SQLite-lightgrey?style=for-the-badge&logo=sqlite" />
+</p>
+
+<p align="center">
+  🚀 Turning traditional attendance into intelligent automation
 </p>
 
 ---
 
-## 🚀 Overview
+## 📌 Overview
 
-**Attend AI** is a real-time smart attendance system that uses **face recognition** to automatically mark attendance.
-It replaces traditional manual attendance methods with an **AI-driven, efficient, and scalable solution**.
+**Attend AI** is a smart AI-based attendance system that uses **real-time face recognition** to automate attendance tracking.
+It eliminates manual effort and introduces a seamless, intelligent, and scalable solution for classrooms and institutions.
 
 ---
 
-## ✨ Features
+## 🎯 Key Features
 
 * 🎥 Real-Time Face Detection
 * 🧠 Face Recognition with Name Identification
 * 😊 Emotion Detection (Happy, Neutral, Sad, etc.)
-* ⚡ Automatic Attendance Marking (Present/Absent)
-* 📊 Attendance Analytics (Monthly Summary & Defaulters)
+* ⚡ Smart Attendance Marking (Present/Absent)
+* 📊 Analytics Dashboard (Defaulters & Monthly Reports)
 * 🔔 Notification System
 * 🧾 Export Reports (CSV)
 * 📁 Face Data Management
@@ -33,7 +37,7 @@ It replaces traditional manual attendance methods with an **AI-driven, efficient
 
 ## 🏗️ Tech Stack
 
-| Layer     | Technology                         |
+| Category  | Technology                         |
 | --------- | ---------------------------------- |
 | Frontend  | HTML, CSS, JavaScript, face-api.js |
 | Backend   | Flask (Python)                     |
@@ -44,7 +48,7 @@ It replaces traditional manual attendance methods with an **AI-driven, efficient
 
 ## 📂 Project Structure
 
-```
+```bash
 Attend-AI/
 │
 ├── app.py
@@ -65,42 +69,34 @@ Attend-AI/
 
 ---
 
-## ⚙️ Installation & Setup
+## ⚙️ Setup Instructions
 
-### 1️⃣ Clone the Repository
+### 🔹 1. Clone Repository
 
 ```bash
 git clone https://github.com/your-username/Attend-AI.git
 cd Attend-AI
 ```
 
----
-
-### 2️⃣ Install Dependencies
+### 🔹 2. Install Dependencies
 
 ```bash
 pip install flask flask-cors opencv-python numpy
 ```
 
----
-
-### 3️⃣ Download Models
+### 🔹 3. Download Face Models
 
 ```bash
 python download_model.py
 ```
 
----
-
-### 4️⃣ Run the Application
+### 🔹 4. Run Application
 
 ```bash
 python app.py
 ```
 
----
-
-### 5️⃣ Open in Browser
+### 🔹 5. Open in Browser
 
 ```
 http://localhost:5000
@@ -110,49 +106,58 @@ http://localhost:5000
 
 ## 🔐 Default Credentials
 
-### 👨‍🏫 Teacher
-
-```
-ID: teacher1
-Password: teacher123
-```
-
-### 👨‍🎓 Student
-
-```
-ID: <roll_number>
-Password: student123
-```
+| Role    | ID       | Password   |
+| ------- | -------- | ---------- |
+| Teacher | teacher1 | teacher123 |
+| Student | roll_no  | student123 |
 
 ---
 
 ## 🧠 How It Works
 
-1. 📸 Camera captures face in real-time
-2. 🤖 Face is matched with stored dataset
+1. 📸 Camera captures faces in real-time
+2. 🤖 AI model detects & recognizes faces
 3. ✅ Recognized → Marked Present
-4. ❌ Not detected → Marked Absent (after session finalize)
-5. 📊 Data stored for analytics & reports
+4. ❌ Not detected → Marked Absent
+5. 📊 Data stored for analytics
 
 ---
 
-## 📊 Future Enhancements
+## 📸 Demo (Add Screenshots/GIF)
+
+> Add screenshots or demo video here for better visibility 👇
+
+```
+![Demo](your-demo-link-here)
+```
+
+---
+
+## 👨‍💻 Contributors
+
+| Name  | GitHub                |
+| ----- | --------------------- |
+| Yash  | @Yashrawal03          |
+| Diggy | @chouhandrs864-dotcom |
+
+---
+
+## 🚀 Future Enhancements
 
 * 🔐 JWT Authentication
 * 🎥 Live Attendance Mode
-* 🧠 Anti-Spoofing (Blink Detection)
+* 🧠 Anti-Spoofing Detection
 * ☁️ Cloud Deployment
 * 📱 Mobile App Integration
----
----
-
-## 👨‍💻 Contributor
-
-* @chouhandrs864-dotcom
 
 ---
 
+## ⭐ Show Your Support
+
+If you like this project, give it a ⭐ on GitHub!
+
+---
 
 <p align="center">
-  <b>🚀 Turning traditional attendance into intelligent automation using AI</b>
+  Made with ❤️ by Team Attend AI
 </p>
